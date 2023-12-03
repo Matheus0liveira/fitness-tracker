@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 
 class ImcActivity : AppCompatActivity() {
 
@@ -32,7 +33,11 @@ class ImcActivity : AppCompatActivity() {
 
             val imcResponseId = imcResponse(result)
 
-            Toast.makeText(this, imcResponseId, Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(this)
+                .setTitle("Sei IMC é: ${getString(R.string.imc_response, result)}")
+                .setMessage(imcResponseId)
+                .create()
+                .show()
         }
     }
 
