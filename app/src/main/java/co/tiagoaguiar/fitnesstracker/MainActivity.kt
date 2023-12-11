@@ -1,16 +1,20 @@
 package co.tiagoaguiar.fitnesstracker
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnItemClickListener {
 
     lateinit var recyclerViewMain: RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val mainItems = mutableListOf<MainItem>()
+
         mainItems.add(
             MainItem(
                 id = 1,
@@ -29,31 +34,44 @@ class MainActivity : AppCompatActivity() {
         mainItems.add(
             MainItem(
                 id = 2,
-                drawableId = R.drawable.ic_baseline_wb_sunny_24,
+                drawableId = R.drawable.baseline_remove_red_eye_24,
                 textStringId = R.string.tmb,
-                color = Color.GREEN
+                color = Color.YELLOW
             ),
         )
 
-        val adapter = MainAdapter(mainItems)
+        val adapter = MainAdapter(mainItems) { id ->
+            when (id) {
+                1 -> {
+                    startActivity(Intent(this@MainActivity, ImcActivity::class.java))
+                }
+            }
+        }
+
+
         recyclerViewMain = findViewById(R.id.rv_main)
         recyclerViewMain.adapter = adapter
-        recyclerViewMain.layoutManager = LinearLayoutManager(this)
+        recyclerViewMain.layoutManager = GridLayoutManager(this, 2)
 
-//        btnImc = findViewById<LinearLayout>(R.id.btn_imc)
-//
-//        btnImc.setOnClickListener {
-//
-//            startActivity(Intent(this, ImcActivity::class.java))
-//
-//
-//        }
     }
 
-    private inner class MainAdapter(private val mainItems: List<MainItem>) :
-        RecyclerView.Adapter<MainViewHolder>() {
+//    override fun onClick(id: Int) {
+//        when (id) {
+//            1 -> {
+//                startActivity(Intent(this, ImcActivity::class.java))
+//            }
+//        }
+//    }
+
+
+    private inner class MainAdapter(
+        private val mainItems: List<MainItem>,
+        private val onItemClickListener: (id: Int) -> Unit
+    ) :
+        RecyclerView.Adapter<MainAdapter.MainViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
             val view = layoutInflater.inflate(R.layout.main_item, parent, false)
+
             return MainViewHolder(view)
         }
 
@@ -65,17 +83,25 @@ class MainActivity : AppCompatActivity() {
             holder.bind(mainItems[position])
 
         }
-    }
 
-    private class MainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: MainItem) {
+        private inner class MainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            fun bind(item: MainItem) {
 
-            val btn = itemView.findViewById<Button>(R.id.btn_item)
-            btn.setText(item.textStringId)
+                val itemContainerImc = itemView.findViewById<LinearLayout>(R.id.item_container_imc)
+                val itemImgIcon = itemView.findViewById<ImageView>(R.id.item_img_icon)
+                val itemTxtName = itemView.findViewById<TextView>(R.id.item_txt_name)
 
-            btn.setOnClickListener {
-                Log.i("-==-=--=-=-=-=-=", "IDDDDD: ${item.id}")
+                itemTxtName.setText(item.textStringId)
+                itemImgIcon.setImageResource(item.drawableId)
+                itemContainerImc.setBackgroundColor(item.color)
+
+                itemContainerImc.setOnClickListener {
+                    onItemClickListener.invoke(item.id)
+                }
+
             }
         }
     }
+
+
 }
