@@ -3,13 +3,13 @@ package co.tiagoaguiar.fitnesstracker
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.inputmethod.InputMethod
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import co.tiagoaguiar.fitnesstracker.model.Calc
 
 class ImcActivity : AppCompatActivity() {
 
@@ -40,6 +40,27 @@ class ImcActivity : AppCompatActivity() {
                 .setTitle("Sei IMC é: ${getString(R.string.imc_response, result)}")
                 .setMessage(imcResponseId)
                 .setPositiveButton(android.R.string.ok) { _, _ -> }
+                .setNegativeButton(R.string.save) { dialog, which ->
+
+                    Thread {
+                        val app = (application as App)
+                        val dao = app.db.calcDao()
+                        dao.insert(
+                            Calc(type = "imc", res = result)
+                        )
+
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@ImcActivity,
+                                R.string.calc_saved,
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                    }.start()
+
+
+                }
                 .create()
                 .show()
 
