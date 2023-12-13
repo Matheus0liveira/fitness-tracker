@@ -82,6 +82,8 @@ class ImcActivity : AppCompatActivity() {
             imc < 40.0 -> R.string.imc_severely_high_weight
             else -> R.string.imc_extreme_weight
         }
+
+
     }
 
 
