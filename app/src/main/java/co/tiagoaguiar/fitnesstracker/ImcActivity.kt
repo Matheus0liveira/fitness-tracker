@@ -1,6 +1,7 @@
 package co.tiagoaguiar.fitnesstracker
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
@@ -50,12 +51,12 @@ class ImcActivity : AppCompatActivity() {
                         )
 
                         runOnUiThread {
-                            Toast.makeText(
-                                this@ImcActivity,
-                                R.string.calc_saved,
-                                Toast.LENGTH_LONG
+                            startActivity(
+                                Intent(
+                                    this@ImcActivity,
+                                    ListCalcActivity::class.java
+                                ).putExtra("type", "imc")
                             )
-                                .show()
                         }
                     }.start()
 

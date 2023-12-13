@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
                 id = 1,
                 drawableId = R.drawable.ic_baseline_wb_sunny_24,
                 textStringId = R.string.imc,
-                color = Color.GREEN
+                color = Color.DKGRAY
             ),
         )
         mainItems.add(
@@ -54,14 +54,6 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
         recyclerViewMain.layoutManager = GridLayoutManager(this, 2)
 
     }
-
-//    override fun onClick(id: Int) {
-//        when (id) {
-//            1 -> {
-//                startActivity(Intent(this, ImcActivity::class.java))
-//            }
-//        }
-//    }
 
 
     private inner class MainAdapter(
