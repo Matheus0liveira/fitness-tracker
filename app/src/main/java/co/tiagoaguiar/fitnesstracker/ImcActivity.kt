@@ -91,7 +91,10 @@ class ImcActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_search -> openListActivity()
+            R.id.menu_search -> {
+                finish()
+                openListActivity()
+            }
         }
 
         return super.onOptionsItemSelected(item)
