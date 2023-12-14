@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
@@ -51,12 +53,7 @@ class ImcActivity : AppCompatActivity() {
                         )
 
                         runOnUiThread {
-                            startActivity(
-                                Intent(
-                                    this@ImcActivity,
-                                    ListCalcActivity::class.java
-                                ).putExtra("type", "imc")
-                            )
+                            openListActivity()
                         }
                     }.start()
 
@@ -86,6 +83,30 @@ class ImcActivity : AppCompatActivity() {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_search -> openListActivity()
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+
+    private fun openListActivity() {
+        startActivity(
+            Intent(
+                this@ImcActivity,
+                ListCalcActivity::class.java
+            ).putExtra("type", "imc")
+        )
+
+    }
 
     private fun validate(): Boolean {
         return (editWeight.text.toString().isNotEmpty()
