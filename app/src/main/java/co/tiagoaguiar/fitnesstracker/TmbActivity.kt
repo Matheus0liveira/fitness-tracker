@@ -7,24 +7,37 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import co.tiagoaguiar.fitnesstracker.model.Calc
+import com.google.android.material.textfield.TextInputLayout
 
-class ImcActivity : AppCompatActivity() {
+class TmbActivity : AppCompatActivity() {
 
+    private lateinit var lifeStyle: AutoCompleteTextView
     private lateinit var editWeight: EditText
     private lateinit var editHeight: EditText
+    private lateinit var editAge: EditText
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_imc)
+        setContentView(R.layout.activity_tmb)
 
-        editWeight = findViewById(R.id.edit_imc_weight)
-        editHeight = findViewById(R.id.edit_imc_height)
-        val btnSend = findViewById<Button>(R.id.btn_imc_send)
+        editWeight = findViewById(R.id.edit_tmb_weight)
+        editHeight = findViewById(R.id.edit_tmb_height)
+        editAge = findViewById(R.id.edit_tmb_age)
+        val btnSend = findViewById<Button>(R.id.btn_tmb_send)
+
+        lifeStyle = findViewById(R.id.auto_lifestyle)
+
+        val items = resources.getStringArray(R.array.tmb_lifestyle)
+        lifeStyle.setText(items.first())
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, items)
+        lifeStyle.setAdapter(adapter)
+
 
         btnSend.setOnClickListener {
             if (!validate()) {
@@ -32,16 +45,16 @@ class ImcActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+
             val weight = editWeight.text.toString().toInt()
             val height = editHeight.text.toString().toInt()
+            val age = editAge.text.toString().toInt()
 
-            val result = calculateIMC(weight, height)
-
-            val imcResponseId = imcResponse(result)
+            val result = calculateTmb(weight, height, age)
+            val response = tmbRequest(result)
 
             AlertDialog.Builder(this)
-                .setTitle(getString(R.string.imc_response, imcResponseId))
-                .setMessage(imcResponseId)
+                .setMessage(getString(R.string.tmb_response, response))
                 .setPositiveButton(android.R.string.ok) { _, _ -> }
                 .setNegativeButton(R.string.save) { dialog, which ->
 
@@ -49,7 +62,7 @@ class ImcActivity : AppCompatActivity() {
                         val app = (application as App)
                         val dao = app.db.calcDao()
                         dao.insert(
-                            Calc(type = "imc", res = result)
+                            Calc(type = "tmb", res = response)
                         )
 
                         runOnUiThread {
@@ -67,20 +80,24 @@ class ImcActivity : AppCompatActivity() {
         }
     }
 
-    @StringRes
-    private fun imcResponse(imc: Double): Int {
-        return when {
-            imc < 15.0 -> R.string.imc_severely_low_weight
-            imc < 16.0 -> R.string.imc_very_low_weight
-            imc < 18.5 -> R.string.imc_low_weight
-            imc < 25.0 -> R.string.normal
-            imc < 30.0 -> R.string.imc_high_weight
-            imc < 35.0 -> R.string.imc_so_high_weight
-            imc < 40.0 -> R.string.imc_severely_high_weight
-            else -> R.string.imc_extreme_weight
+
+    private fun calculateTmb(weight: Int, height: Int, age: Int): Double {
+
+        return 66 + (13.8 * weight) + (5 * height) - (6.8 * age)
+
+    }
+
+    private fun tmbRequest(tmb: Double): Double {
+        val items = resources.getStringArray(R.array.tmb_lifestyle)
+
+        return when (lifeStyle.text.toString()) {
+            items[0] -> tmb * 1.2
+            items[1] -> tmb * 1.375
+            items[2] -> tmb * 1.55
+            items[3] -> tmb * 1.725
+            items[4] -> tmb * 1.9
+            else -> 0.0
         }
-
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -106,20 +123,19 @@ class ImcActivity : AppCompatActivity() {
             Intent(
                 this,
                 ListCalcActivity::class.java
-            ).putExtra("type", "imc")
+            ).putExtra("type", "tmb")
         )
 
     }
 
+
     private fun validate(): Boolean {
         return (editWeight.text.toString().isNotEmpty()
                 && editHeight.text.toString().isNotEmpty()
+                && editAge.text.toString().isNotEmpty()
                 && !editWeight.text.toString().startsWith("0")
                 && !editHeight.text.toString().startsWith("0")
+                && !editAge.text.toString().startsWith("0")
                 )
-    }
-
-    private fun calculateIMC(weight: Int, height: Int): Double {
-        return weight / ((height / 100.0) * (height / 100.0))
     }
 }

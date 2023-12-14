@@ -54,14 +54,11 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
                     startActivity(Intent(this@MainActivity, ImcActivity::class.java))
                 }
 
-                3 -> {
-                    startActivity(
-                        Intent(
-                            this@MainActivity,
-                            ListCalcActivity::class.java
-                        ).putExtra("type", "imc")
-                    )
+                2 -> {
+                    startActivity(Intent(this@MainActivity, TmbActivity::class.java))
                 }
+
+
             }
         }
 
