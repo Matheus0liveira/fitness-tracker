@@ -3,26 +3,27 @@ package co.tiagoaguiar.fitnesstracker
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import co.tiagoaguiar.fitnesstracker.model.Calc
-import org.w3c.dom.Text
 import java.lang.IllegalStateException
-import java.math.RoundingMode
 import java.text.SimpleDateFormat
-import java.time.ZonedDateTime
-import java.util.Optional
+import java.util.Locale
 import kotlin.math.round
-import kotlin.math.roundToInt
 
 class ListCalcActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_calc)
+
+        val result = mutableListOf<Calc>()
+        val adapter = ListCalcAdapter(result)
+        val mainListRv = findViewById<RecyclerView>(R.id.rv_main_list)
+        mainListRv.layoutManager = LinearLayoutManager(this)
+        mainListRv.adapter = adapter
 
 
         val type =
@@ -36,12 +37,8 @@ class ListCalcActivity : AppCompatActivity() {
             val response = dao.getRegisterByType(type)
             runOnUiThread {
 
-                val adapter = MainAdapter(response)
-
-                val mainListRv = findViewById<RecyclerView>(R.id.rv_main_list)
-
-                mainListRv.adapter = adapter
-                mainListRv.layoutManager = LinearLayoutManager(this)
+                result.addAll(response)
+                adapter.notifyDataSetChanged()
             }
 
         }.start()
@@ -50,10 +47,10 @@ class ListCalcActivity : AppCompatActivity() {
     }
 
 
-    private inner class MainAdapter(
+    private inner class ListCalcAdapter(
         private val calcItems: List<Calc>
     ) :
-        RecyclerView.Adapter<MainAdapter.MainViewHolder>() {
+        RecyclerView.Adapter<ListCalcAdapter.MainViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainViewHolder {
             val view = layoutInflater.inflate(android.R.layout.simple_list_item_1, parent, false)
             return MainViewHolder(view)
@@ -72,14 +69,13 @@ class ListCalcActivity : AppCompatActivity() {
             @SuppressLint("SetTextI18n")
             fun bind(item: Calc) {
 
-                val textItem = itemView as TextView
+                val textView = itemView as TextView
+                val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "BR"))
 
-                textItem.text =
-                    "${SimpleDateFormat("dd/MM/yyyy").format(item.createdAt)} - ${item.type.uppercase()}: ${
-                        round(
-                            item.res
-                        )
-                    }"
+                textView.text = getString(
+                    R.string.list_response, item.res, sdf.format(item.createdAt)
+                )
+
             }
         }
     }
