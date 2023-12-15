@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import co.tiagoaguiar.fitnesstracker.model.Calc
@@ -15,12 +16,15 @@ import java.util.Locale
 import kotlin.math.round
 
 class ListCalcActivity : AppCompatActivity() {
+
+    private lateinit var result: MutableList<Calc>
+    private lateinit var adapter: ListCalcAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list_calc)
 
-        val result = mutableListOf<Calc>()
-        val adapter = ListCalcAdapter(result)
+        result = mutableListOf<Calc>()
+        adapter = ListCalcAdapter(result)
         val mainListRv = findViewById<RecyclerView>(R.id.rv_main_list)
         mainListRv.layoutManager = LinearLayoutManager(this)
         mainListRv.adapter = adapter
@@ -61,13 +65,13 @@ class ListCalcActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: MainViewHolder, position: Int) {
-            holder.bind(calcItems[position])
+            holder.bind(calcItems[position], position)
 
         }
 
         private inner class MainViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             @SuppressLint("SetTextI18n")
-            fun bind(item: Calc) {
+            fun bind(item: Calc, position: Int) {
 
                 val textView = itemView as TextView
                 val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("pt", "BR"))
@@ -76,6 +80,33 @@ class ListCalcActivity : AppCompatActivity() {
                     R.string.list_response, item.res, sdf.format(item.createdAt)
                 )
 
+
+                textView.setOnLongClickListener {
+                    AlertDialog.Builder(this@ListCalcActivity)
+                        .setMessage(getString(R.string.delete_message))
+                        .setPositiveButton(R.string.cancel) { _, _ -> }
+                        .setNegativeButton(R.string.delete) { dialog, which ->
+
+                            Thread {
+                                val app = (application as App)
+                                val dao = app.db.calcDao()
+                                val response = dao.delete(item)
+
+                                if (response < 0) return@Thread
+
+                                runOnUiThread {
+                                    result.removeAt(position)
+                                    adapter.notifyItemRemoved(position)
+                                }
+                            }.start()
+
+
+                        }
+                        .create()
+                        .show()
+
+                    true
+                }
             }
         }
     }
