@@ -39,14 +39,6 @@ class MainActivity : AppCompatActivity(), OnItemClickListener {
                 color = Color.YELLOW
             ),
         )
-        mainItems.add(
-            MainItem(
-                id = 3,
-                drawableId = R.drawable.baseline_library_books_24,
-                textStringId = R.string.register,
-                color = Color.GRAY
-            ),
-        )
 
         val adapter = MainAdapter(mainItems) { id ->
             when (id) {
